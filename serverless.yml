@@ -9,9 +9,15 @@ provider:
   lambdaHashingVersion: 20201221
 
 functions:
-  get_all_orders:
-    handler: handler.get_all_orders
+  get_all_services:
+    handler: src.exampleco.exampleco.api.services.get_all_services
     events:
       - httpApi:
-          path: /orders
+          path: /services
+          method: get
+  get_service:
+    handler: src.exampleco.exampleco.api.services.get_service
+    events:
+      - httpApi:
+          path: /services/{pk}
           method: get
