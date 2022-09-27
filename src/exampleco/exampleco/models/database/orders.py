@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, text, TIMESTAMP, ForeignKey, Enu
 from sqlalchemy.orm import relationship
 from .services import Service
 from . import Base
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class OrderStatuses(enum.Enum):
@@ -39,6 +40,14 @@ class Order(Base):
         server_onupdate=text("CURRENT_TIMESTAMP"),
     )
 
+    @hybrid_property
+    def is_active(self):
+        return self.status == OrderStatuses.ACTIVE
+
+    @is_active.expression
+    def is_active(cls):
+        return cls.status == OrderStatuses.ACTIVE
+
     def __repr__(self) -> str:
         return (
             "<Order(name='{}', status='{}', service_id='{}', created_on='{}')>".format(
@@ -71,7 +80,19 @@ class OrderItem(Base):
         )
 
 
-class OrderSchema(SQLAlchemySchema):
+class OrderItemSchema(SQLAlchemySchema):
+    id = fields.Integer()
+    name = fields.String(required=True)
+    order_id = fields.Integer(required=True)
+    created_on = fields.DateTime()
+    modified_on = fields.DateTime()
+
+    class Meta:
+        model = OrderItem
+        load_instance = True
+
+
+class OrderSchemaList(SQLAlchemySchema):
     id = fields.Integer()
     name = fields.String(required=True)
     service_id = fields.Integer(required=True)
@@ -83,13 +104,8 @@ class OrderSchema(SQLAlchemySchema):
         load_instance = True
 
 
-class OrderItemSchema(SQLAlchemySchema):
-    id = fields.Integer()
-    name = fields.String(required=True)
-    order_id = fields.Integer(required=True)
-    created_on = fields.DateTime()
-    modified_on = fields.DateTime()
+class OrderSchemaDetail(OrderSchemaList):
+    order_items = fields.Nested(OrderItemSchema, many=True)
 
-    class Meta:
-        model = OrderItem
-        load_instance = True
+    class Meta(OrderSchemaList.Meta):
+        pass

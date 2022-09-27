@@ -21,3 +21,39 @@ functions:
       - httpApi:
           path: /services/{pk}
           method: get
+  get_all_orders:
+    handler: src.exampleco.exampleco.api.orders.get_all_orders
+    events:
+      - httpApi:
+          path: /orders
+          method: get
+  get_order:
+    handler: src.exampleco.exampleco.api.orders.get_order
+    events:
+      - httpApi:
+          path: /orders/{pk}
+          method: get
+  create_order:
+    handler: src.exampleco.exampleco.api.orders.create_order
+    events:
+      - httpApi:
+          path: /orders
+          method: post
+          request:
+            schema:
+              application/json: ${file(src/exampleco/exampleco/api/schemas/create_order.json)}
+  update_order:
+    handler: src.exampleco.exampleco.api.orders.update_order
+    events:
+      - httpApi:
+          path: /orders/{pk}
+          method: patch
+          request:
+            schema:
+              application/json: ${file(src/exampleco/exampleco/api/schemas/update_order.json)}
+  delete_order:
+    handler: src.exampleco.exampleco.api.orders.delete_order
+    events:
+      - httpApi:
+          path: /orders/{pk}
+          method: delete
