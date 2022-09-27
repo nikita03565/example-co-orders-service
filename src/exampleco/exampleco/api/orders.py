@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from exampleco.models.database import Session
@@ -10,7 +11,12 @@ from exampleco.models.database.orders import (
 from exampleco.models.database.services import Service
 from exampleco.utils.decorators import handle_exception
 from sqlalchemy import and_
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
+
+WEEK = "THIS_WEEK"
+MONTH = "THIS_MONTH"
+YEAR = "THIS_YEAR"
 
 
 # pylint: disable=unused-argument
@@ -167,4 +173,80 @@ def delete_order(event, context):
     response = {
         "statusCode": 204,
     }
+    return response
+
+
+@handle_exception
+def orders_stats(event, context):
+    """
+    Endpoint that can be used by the frontend to display the number of created orders over time.
+    Expects time-period query parameter with possible values THIS_WEEK, THIS_MONTH, THIS_YEAR.
+
+    Returns:
+        Returns number of orders in buckets.
+    """
+    time_period = event["queryStringParameters"].get("time-period")
+    allowed_periods = [WEEK, MONTH, YEAR]
+
+    if time_period not in allowed_periods:
+        response = {
+            "statusCode": 400,
+            "body": json.dumps(
+                {"error": f"time-period must be one of {allowed_periods}"}
+            ),
+        }
+        return response
+    response_data = {}
+    now = datetime.datetime.now()
+    if time_period == WEEK:
+        group_by_clauses = [
+            func.year(Order.created_on),
+            func.month(Order.created_on),
+            func.dayofmonth(Order.created_on),
+            func.hour(Order.created_on),
+        ]
+        result = (
+            Session.query(*group_by_clauses, func.count(Order.id))
+            .filter(Order.created_on > now - datetime.timedelta(days=7))
+            .group_by(*group_by_clauses)
+            .all()
+        )
+        for row in result:
+            year, month, day, hour, count = row
+            dtm = datetime.datetime(
+                year=year, month=month, day=day, hour=hour
+            ).isoformat()
+            response_data[dtm] = count
+    if time_period == MONTH:
+        group_by_clauses = [
+            func.year(Order.created_on),
+            func.month(Order.created_on),
+            func.dayofmonth(Order.created_on),
+        ]
+        result = (
+            Session.query(*group_by_clauses, func.count(Order.id))
+            .filter(Order.created_on > now - datetime.timedelta(days=30))
+            .group_by(*group_by_clauses)
+            .all()
+        )
+        for row in result:
+            year, month, day, count = row
+            dtm = datetime.datetime(year=year, month=month, day=day).isoformat()
+            response_data[dtm] = count
+    if time_period == YEAR:
+        group_by_clauses = [
+            func.year(Order.created_on),
+            func.month(Order.created_on),
+        ]
+        result = (
+            Session.query(*group_by_clauses, func.count(Order.id))
+            .filter(Order.created_on > now - datetime.timedelta(days=365))
+            .group_by(*group_by_clauses)
+            .all()
+        )
+        for row in result:
+            year, month, count = row
+            dtm = datetime.datetime(year=year, month=month, day=1).isoformat()
+            response_data[dtm] = count
+    response = {"statusCode": 200, "body": json.dumps(response_data)}
     return response
