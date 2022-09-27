@@ -3,7 +3,8 @@ import json
 from exampleco.models.database import Session
 from exampleco.models.database.orders import (
     Order,
-    OrderSchema,
+    OrderSchemaList,
+    OrderSchemaDetail,
     OrderStatuses,
 )
 from exampleco.models.database.services import Service
@@ -22,7 +23,7 @@ def get_all_orders(event, context):
         Returns a list of all orders pulled from the database.
     """
 
-    orders_schema = OrderSchema(many=True)
+    orders_schema = OrderSchemaList(many=True)
     orders = Session.query(Order).filter(Order.is_active)
     results = orders_schema.dump(orders)
 
@@ -43,7 +44,7 @@ def get_order(event, context):
     """
     order_id = event["pathParameters"]["pk"]
 
-    orders_schema = OrderSchema(many=False)
+    orders_schema = OrderSchemaDetail(many=False)
     order = (
         Session.query(Order)
         .filter(and_(Order.id == order_id, Order.is_active))
@@ -89,7 +90,7 @@ def create_order(event, context):
     Session.add(order)
     Session.commit()
 
-    orders_schema = OrderSchema(many=False)
+    orders_schema = OrderSchemaDetail(many=False)
     result = orders_schema.dump(order)
     response = {"statusCode": 201, "body": json.dumps(result)}
     return response
@@ -135,7 +136,7 @@ def update_order(event, context):
 
     Session.commit()
 
-    orders_schema = OrderSchema(many=False)
+    orders_schema = OrderSchemaDetail(many=False)
     result = orders_schema.dump(order)
     response = {"statusCode": 200, "body": json.dumps(result)}
     return response

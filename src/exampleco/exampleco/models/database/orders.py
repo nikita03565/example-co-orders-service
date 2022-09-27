@@ -42,12 +42,10 @@ class Order(Base):
 
     @hybrid_property
     def is_active(self):
-        print(self, "self!!!")
         return self.status == OrderStatuses.ACTIVE
 
     @is_active.expression
     def is_active(cls):
-        print(cls, "cls!!!")
         return cls.status == OrderStatuses.ACTIVE
 
     def __repr__(self) -> str:
@@ -94,14 +92,20 @@ class OrderItemSchema(SQLAlchemySchema):
         load_instance = True
 
 
-class OrderSchema(SQLAlchemySchema):
+class OrderSchemaList(SQLAlchemySchema):
     id = fields.Integer()
     name = fields.String(required=True)
     service_id = fields.Integer(required=True)
     created_on = fields.DateTime()
     modified_on = fields.DateTime()
-    order_items = fields.Nested(OrderItemSchema, many=True)
 
     class Meta:
         model = Order
         load_instance = True
+
+
+class OrderSchemaDetail(OrderSchemaList):
+    order_items = fields.Nested(OrderItemSchema, many=True)
+
+    class Meta(OrderSchemaList.Meta):
+        pass
