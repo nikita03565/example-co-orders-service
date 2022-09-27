@@ -99,7 +99,7 @@ def create_order(event, context):
 @handle_exception
 def update_order(event, context):
     """
-    Updates order endpoint.
+    Update order endpoint.
     Expects body {"name": string, "service_id": int} and pk in path.
 
     Returns:
@@ -145,11 +145,11 @@ def update_order(event, context):
 @handle_exception
 def delete_order(event, context):
     """
-    Updates order endpoint.
-    Expects body {"name": string, "service_id": int} and pk in path.
+    Delete order endpoint.
+    Expects pk in path.
 
     Returns:
-        Returns updated order.
+        Returns 204 response.
     """
     order_id = event["pathParameters"]["pk"]
 
