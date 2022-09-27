@@ -34,13 +34,18 @@ def get_service(event, context):
     Returns:
         Returns a service with given id or 404.
     """
-    service_id = event['pathParameters']['pk']
+    service_id = event["pathParameters"]["pk"]
 
     services_schema = ServiceSchema(many=False)
     service = Session.query(Service).filter(Service.id == service_id).first()
 
     if not service:
-        response = {"statusCode": 404, "body": json.dumps({"error": f"Service with id {service_id} does not exist."})}
+        response = {
+            "statusCode": 404,
+            "body": json.dumps(
+                {"error": f"Service with id {service_id} does not exist."}
+            ),
+        }
         return response
 
     result = services_schema.dump(service)
