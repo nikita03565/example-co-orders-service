@@ -1,10 +1,16 @@
 import json
 from sqlalchemy.orm import joinedload
 from exampleco.models.database import Session
-from exampleco.models.database.orders import Order, OrderSchema, OrderItem, OrderItemSchema
+from exampleco.models.database.orders import (
+    Order,
+    OrderSchema,
+    OrderItem,
+    OrderItemSchema,
+)
+from exampleco.models.database.services import Service
 from exampleco.utils.decorators import handle_exception
 
-# The read endpoints should be one that lists all the orders and one that describes a single order with all the order items
+
 # pylint: disable=unused-argument
 @handle_exception
 def get_all_orders(event, context):
@@ -37,18 +43,96 @@ def get_order(event, context):
     order_id = event["pathParameters"]["pk"]
 
     orders_schema = OrderSchema(many=False)
-    order = Session.query(Order).filter(Order.id == order_id).options(joinedload(Order.order_items)).first()
+    order = (
+        Session.query(Order)
+        .filter(Order.id == order_id)
+        .options(joinedload(Order.order_items))
+        .first()
+    )
 
     if not order:
         response = {
             "statusCode": 404,
-            "body": json.dumps(
-                {"error": f"order with id {order_id} does not exist."}
-            ),
+            "body": json.dumps({"error": f"order with id {order_id} does not exist."}),
         }
         return response
 
     result = orders_schema.dump(order)
     response = {"statusCode": 200, "body": json.dumps(result)}
 
+    return response
+
+
+@handle_exception
+def create_order(event, context):
+    """
+    Create order endpoint.
+    Expects body {"name": string, "service_id": int}
+
+    Returns:
+        Returns created order.
+    """
+    body = json.loads(event["body"])
+    name = body["name"]
+    service_id = body["service_id"]
+    service = Session.query(Service).filter(Service.id == service_id).first()
+    if not service:
+        response = {
+            "statusCode": 400,
+            "body": json.dumps(
+                {"error": f"Service with id {service_id} does not exist."}
+            ),
+        }
+        return response
+    order = Order(name=name, service_id=service_id)
+    Session.add(order)
+    Session.commit()
+
+    orders_schema = OrderSchema(many=False)
+    result = orders_schema.dump(order)
+    response = {"statusCode": 201, "body": json.dumps(result)}
+    return response
+
+
+@handle_exception
+def update_order(event, context):
+    """
+    Updates order endpoint.
+    Expects body {"name": string, "service_id": int} and pk in path.
+
+    Returns:
+        Returns updated order.
+    """
+    order_id = event["pathParameters"]["pk"]
+
+    order = Session.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        response = {
+            "statusCode": 404,
+            "body": json.dumps({"error": f"order with id {order_id} does not exist."}),
+        }
+        return response
+
+    body = json.loads(event["body"])
+    name = body.get("name")
+    service_id = body.get("service_id")
+    if service_id is not None:
+        service = Session.query(Service).filter(Service.id == service_id).first()
+        if not service:
+            response = {
+                "statusCode": 400,
+                "body": json.dumps(
+                    {"error": f"Service with id {service_id} does not exist."}
+                ),
+            }
+            return response
+        order.service_id = service_id
+    if name is not None:
+        order.name = name
+
+    Session.commit()
+
+    orders_schema = OrderSchema(many=False)
+    result = orders_schema.dump(order)
+    response = {"statusCode": 200, "body": json.dumps(result)}
     return response
