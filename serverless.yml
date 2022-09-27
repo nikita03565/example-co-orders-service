@@ -21,3 +21,15 @@ functions:
       - httpApi:
           path: /services/{pk}
           method: get
+  get_all_orders:
+    handler: src.exampleco.exampleco.api.orders.get_all_orders
+    events:
+      - httpApi:
+          path: /orders
+          method: get
+  get_order:
+    handler: src.exampleco.exampleco.api.orders.get_order
+    events:
+      - httpApi:
+          path: /orders/{pk}
+          method: get

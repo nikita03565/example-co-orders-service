@@ -71,18 +71,6 @@ class OrderItem(Base):
         )
 
 
-class OrderSchema(SQLAlchemySchema):
-    id = fields.Integer()
-    name = fields.String(required=True)
-    service_id = fields.Integer(required=True)
-    created_on = fields.DateTime()
-    modified_on = fields.DateTime()
-
-    class Meta:
-        model = Order
-        load_instance = True
-
-
 class OrderItemSchema(SQLAlchemySchema):
     id = fields.Integer()
     name = fields.String(required=True)
@@ -92,4 +80,17 @@ class OrderItemSchema(SQLAlchemySchema):
 
     class Meta:
         model = OrderItem
+        load_instance = True
+
+
+class OrderSchema(SQLAlchemySchema):
+    id = fields.Integer()
+    name = fields.String(required=True)
+    service_id = fields.Integer(required=True)
+    created_on = fields.DateTime()
+    modified_on = fields.DateTime()
+    order_items = fields.Nested(OrderItemSchema, many=True)
+
+    class Meta:
+        model = Order
         load_instance = True
