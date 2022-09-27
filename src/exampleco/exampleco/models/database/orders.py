@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, text, TIMESTAMP, ForeignKey, Enu
 from sqlalchemy.orm import relationship
 from .services import Service
 from . import Base
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class OrderStatuses(enum.Enum):
@@ -38,6 +39,16 @@ class Order(Base):
         server_default=text("CURRENT_TIMESTAMP"),
         server_onupdate=text("CURRENT_TIMESTAMP"),
     )
+
+    @hybrid_property
+    def is_active(self):
+        print(self, "self!!!")
+        return self.status == OrderStatuses.ACTIVE
+
+    @is_active.expression
+    def is_active(cls):
+        print(cls, "cls!!!")
+        return cls.status == OrderStatuses.ACTIVE
 
     def __repr__(self) -> str:
         return (

@@ -1,14 +1,15 @@
 import json
-from sqlalchemy.orm import joinedload
+
 from exampleco.models.database import Session
 from exampleco.models.database.orders import (
     Order,
     OrderSchema,
-    OrderItem,
-    OrderItemSchema,
+    OrderStatuses,
 )
 from exampleco.models.database.services import Service
 from exampleco.utils.decorators import handle_exception
+from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 
 
 # pylint: disable=unused-argument
@@ -22,7 +23,7 @@ def get_all_orders(event, context):
     """
 
     orders_schema = OrderSchema(many=True)
-    orders = Session.query(Order).all()
+    orders = Session.query(Order).filter(Order.is_active)
     results = orders_schema.dump(orders)
 
     response = {"statusCode": 200, "body": json.dumps(results)}
@@ -45,7 +46,7 @@ def get_order(event, context):
     orders_schema = OrderSchema(many=False)
     order = (
         Session.query(Order)
-        .filter(Order.id == order_id)
+        .filter(and_(Order.id == order_id, Order.is_active))
         .options(joinedload(Order.order_items))
         .first()
     )
@@ -105,7 +106,9 @@ def update_order(event, context):
     """
     order_id = event["pathParameters"]["pk"]
 
-    order = Session.query(Order).filter(Order.id == order_id).first()
+    order = (
+        Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
+    )
     if not order:
         response = {
             "statusCode": 404,
@@ -135,4 +138,32 @@ def update_order(event, context):
     orders_schema = OrderSchema(many=False)
     result = orders_schema.dump(order)
     response = {"statusCode": 200, "body": json.dumps(result)}
+    return response
+
+
+@handle_exception
+def delete_order(event, context):
+    """
+    Updates order endpoint.
+    Expects body {"name": string, "service_id": int} and pk in path.
+
+    Returns:
+        Returns updated order.
+    """
+    order_id = event["pathParameters"]["pk"]
+
+    order = (
+        Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
+    )
+    if not order:
+        response = {
+            "statusCode": 404,
+            "body": json.dumps({"error": f"order with id {order_id} does not exist."}),
+        }
+        return response
+    order.status = OrderStatuses.DELETED
+    Session.commit()
+    response = {
+        "statusCode": 204,
+    }
     return response
