@@ -51,3 +51,13 @@ def test_get_service(mock_get_db_config, create_services, db_session):
     assert body["name"] == service.name
     assert body["description"] == service.description
     assert body["price"] == service.price
+
+
+@patch("exampleco.models.database.get_db_config", return_value=db_config)
+def test_get_service_does_not_exist(mock_get_db_config, create_services):
+    from exampleco.api.services import get_service
+
+    response = get_service({"pathParameters": {"pk": "BBBCCCDDD"}}, None)
+    body = json.loads(response["body"])
+
+    assert body["error"] == "Service with id BBBCCCDDD does not exist."
