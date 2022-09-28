@@ -1,8 +1,11 @@
 import json
 
-from exampleco.models.database import Session
+from exampleco.models.database import get_session_maker
 from exampleco.models.database.services import Service, ServiceSchema
 from exampleco.utils.decorators import handle_exception
+
+session_maker = get_session_maker()
+Session = session_maker()
 
 
 # pylint: disable=unused-argument
@@ -42,9 +45,7 @@ def get_service(event, context):
     if not service:
         response = {
             "statusCode": 404,
-            "body": json.dumps(
-                {"error": f"Service with id {service_id} does not exist."}
-            ),
+            "body": json.dumps({"error": f"Service with id {service_id} does not exist."}),
         }
         return response
 

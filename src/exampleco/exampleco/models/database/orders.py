@@ -3,10 +3,11 @@ import enum
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy import Column, Integer, String, text, TIMESTAMP, ForeignKey, Enum
-from sqlalchemy.orm import relationship
-from .services import Service
-from . import Base
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+
+from . import Base
+from .services import Service
 
 
 class OrderStatuses(enum.Enum):
@@ -30,9 +31,7 @@ class Order(Base):
         nullable=False,
     )
 
-    created_on = Column(
-        TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
+    created_on = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     modified_on = Column(
         TIMESTAMP,
         nullable=False,
@@ -45,15 +44,16 @@ class Order(Base):
         return self.status == OrderStatuses.ACTIVE
 
     @is_active.expression
-    def is_active(cls):
+    def is_active(cls):  # pylint: disable=no-self-argument
         return cls.status == OrderStatuses.ACTIVE
 
     def __repr__(self) -> str:
-        return (
-            "<Order(name='{}', status='{}', service_id='{}', created_on='{}')>".format(
-                self.name, self.status, self.service_id, self.created_on
-            )
+        return "<Order(name='{}', status='{}', service_id='{}', created_on='{}')>".format(
+            self.name, self.status, self.service_id, self.created_on
         )
+
+
+Service.orders = relationship("Order", back_populates="service")
 
 
 class OrderItem(Base):
@@ -64,9 +64,7 @@ class OrderItem(Base):
 
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
     order = relationship("Order", back_populates="order_items")
-    created_on = Column(
-        TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
+    created_on = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     modified_on = Column(
         TIMESTAMP,
         nullable=False,

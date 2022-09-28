@@ -1,7 +1,10 @@
 import datetime
 import json
 
-from exampleco.models.database import Session
+from sqlalchemy import and_
+from sqlalchemy import func
+from sqlalchemy.orm import joinedload
+from exampleco.models.database import get_session_maker
 from exampleco.models.database.orders import (
     Order,
     OrderSchemaList,
@@ -10,13 +13,13 @@ from exampleco.models.database.orders import (
 )
 from exampleco.models.database.services import Service
 from exampleco.utils.decorators import handle_exception
-from sqlalchemy import and_
-from sqlalchemy import func
-from sqlalchemy.orm import joinedload
 
 WEEK = "THIS_WEEK"
 MONTH = "THIS_MONTH"
 YEAR = "THIS_YEAR"
+
+session_maker = get_session_maker()
+Session = session_maker()
 
 
 # pylint: disable=unused-argument
@@ -87,9 +90,7 @@ def create_order(event, context):
     if not service:
         response = {
             "statusCode": 400,
-            "body": json.dumps(
-                {"error": f"Service with id {service_id} does not exist."}
-            ),
+            "body": json.dumps({"error": f"Service with id {service_id} does not exist."}),
         }
         return response
     order = Order(name=name, service_id=service_id)
@@ -113,9 +114,7 @@ def update_order(event, context):
     """
     order_id = event["pathParameters"]["pk"]
 
-    order = (
-        Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
-    )
+    order = Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
     if not order:
         response = {
             "statusCode": 404,
@@ -131,9 +130,7 @@ def update_order(event, context):
         if not service:
             response = {
                 "statusCode": 400,
-                "body": json.dumps(
-                    {"error": f"Service with id {service_id} does not exist."}
-                ),
+                "body": json.dumps({"error": f"Service with id {service_id} does not exist."}),
             }
             return response
         order.service_id = service_id
@@ -159,9 +156,7 @@ def delete_order(event, context):
     """
     order_id = event["pathParameters"]["pk"]
 
-    order = (
-        Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
-    )
+    order = Session.query(Order).filter(and_(Order.id == order_id, Order.is_active)).first()
     if not order:
         response = {
             "statusCode": 404,
@@ -191,9 +186,7 @@ def orders_stats(event, context):
     if time_period not in allowed_periods:
         response = {
             "statusCode": 400,
-            "body": json.dumps(
-                {"error": f"time-period must be one of {allowed_periods}"}
-            ),
+            "body": json.dumps({"error": f"time-period must be one of {allowed_periods}"}),
         }
         return response
     response_data = {}
@@ -213,9 +206,7 @@ def orders_stats(event, context):
         )
         for row in result:
             year, month, day, hour, count = row
-            dtm = datetime.datetime(
-                year=year, month=month, day=day, hour=hour
-            ).isoformat()
+            dtm = datetime.datetime(year=year, month=month, day=day, hour=hour).isoformat()
             response_data[dtm] = count
     if time_period == MONTH:
         group_by_clauses = [

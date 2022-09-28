@@ -1,0 +1,16 @@
+[MAIN]
+ignore-paths=*/build/*
+
+[MESSAGES CONTROL]
+disable=
+    attribute-defined-outside-init,
+    invalid-name,
+    missing-docstring,
+    protected-access,
+    too-few-public-methods,
+    format,
+    import-error,
+
+
+[DESIGN]
+max-locals=25

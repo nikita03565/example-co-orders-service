@@ -1,3 +1,4 @@
+# pylint: skip-file
 """Add services table
 
 Revision ID: 727577283159
