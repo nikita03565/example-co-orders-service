@@ -1,7 +1,6 @@
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy import Column, Float, Integer, String, text, TEXT, TIMESTAMP
-from sqlalchemy.orm import relationship
 
 from . import Base
 
@@ -22,8 +21,6 @@ class Service(Base):
         server_default=text("CURRENT_TIMESTAMP"),
         server_onupdate=text("CURRENT_TIMESTAMP"),
     )
-
-    orders = relationship("Order", back_populates="service")
 
     def __repr__(self) -> str:
         return "<Service(name='{}', price='{}', created_on='{}')>".format(

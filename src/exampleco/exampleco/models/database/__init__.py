@@ -13,15 +13,28 @@ Base = declarative_base()
 
 session_maker = sessionmaker()
 
-try:
-    engine = create_engine(
-        "mysql+pymysql://{}:{}@{}/{}".format("admin", "password", "localhost", "db")
-    )
-    engine.connect()
-except SQLAlchemyError as error:
-    logger.error("Error connecting to DB")
-    logger.error(error)
-else:
-    session_maker.configure(bind=engine)
 
-Session = session_maker()
+def get_db_config():
+    return {
+        "DB_USER": "admin",
+        "DB_PASSWORD": "password",
+        "DB_HOST": "localhost",
+        "DB_NAME": "db",
+    }
+
+
+def get_session_maker():
+    try:
+        engine = create_engine(
+            "mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(
+                **get_db_config()
+            ),
+            isolation_level="READ COMMITTED",
+        )
+        engine.connect()
+    except SQLAlchemyError as error:
+        logger.error("Error connecting to DB")
+        logger.error(error)
+    else:
+        session_maker.configure(bind=engine)
+    return session_maker

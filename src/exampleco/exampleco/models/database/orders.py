@@ -3,10 +3,11 @@ import enum
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy import Column, Integer, String, text, TIMESTAMP, ForeignKey, Enum
-from sqlalchemy.orm import relationship
-from .services import Service
-from . import Base
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+
+from . import Base
+from .services import Service
 
 
 class OrderStatuses(enum.Enum):
@@ -54,6 +55,9 @@ class Order(Base):
                 self.name, self.status, self.service_id, self.created_on
             )
         )
+
+
+Service.orders = relationship("Order", back_populates="service")
 
 
 class OrderItem(Base):

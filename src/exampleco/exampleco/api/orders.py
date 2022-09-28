@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from exampleco.models.database import Session
+from exampleco.models.database import get_session_maker
 from exampleco.models.database.orders import (
     Order,
     OrderSchemaList,
@@ -18,6 +18,8 @@ WEEK = "THIS_WEEK"
 MONTH = "THIS_MONTH"
 YEAR = "THIS_YEAR"
 
+session_maker = get_session_maker()
+Session = session_maker()
 
 # pylint: disable=unused-argument
 @handle_exception

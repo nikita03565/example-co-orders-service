@@ -1,10 +1,11 @@
 import json
 
-from exampleco.models.database import Session
+from exampleco.models.database import get_session_maker
 from exampleco.models.database.services import Service, ServiceSchema
 from exampleco.utils.decorators import handle_exception
 
-
+session_maker = get_session_maker()
+Session = session_maker()
 # pylint: disable=unused-argument
 @handle_exception
 def get_all_services(event, context):
