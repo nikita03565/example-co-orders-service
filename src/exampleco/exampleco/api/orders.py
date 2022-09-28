@@ -21,6 +21,7 @@ YEAR = "THIS_YEAR"
 session_maker = get_session_maker()
 Session = session_maker()
 
+
 # pylint: disable=unused-argument
 @handle_exception
 def get_all_orders(event, context):
