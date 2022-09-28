@@ -28,7 +28,7 @@ def create_services(db_session):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_services(mock_get_db_config, create_services):
+def test_get_services(mock_get_db_config, create_services):  # pylint: disable=unused-argument
     from exampleco.api.services import get_all_services
 
     response = get_all_services({}, None)
@@ -41,7 +41,7 @@ def test_get_services(mock_get_db_config, create_services):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_service(mock_get_db_config, create_services, db_session):
+def test_get_service(mock_get_db_config, create_services, db_session):  # pylint: disable=unused-argument
     from exampleco.api.services import get_service
 
     service = db_session.query(Service).first()
@@ -54,7 +54,7 @@ def test_get_service(mock_get_db_config, create_services, db_session):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_service_does_not_exist(mock_get_db_config, create_services):
+def test_get_service_does_not_exist(mock_get_db_config, create_services):  # pylint: disable=unused-argument
     from exampleco.api.services import get_service
 
     response = get_service({"pathParameters": {"pk": "BBBCCCDDD"}}, None)

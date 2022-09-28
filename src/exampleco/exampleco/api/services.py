@@ -45,9 +45,7 @@ def get_service(event, context):
     if not service:
         response = {
             "statusCode": 404,
-            "body": json.dumps(
-                {"error": f"Service with id {service_id} does not exist."}
-            ),
+            "body": json.dumps({"error": f"Service with id {service_id} does not exist."}),
         }
         return response
 

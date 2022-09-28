@@ -26,9 +26,7 @@ def get_db_config():
 def get_session_maker():
     try:
         engine = create_engine(
-            "mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(
-                **get_db_config()
-            ),
+            "mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(**get_db_config()),
             isolation_level="READ COMMITTED",
         )
         engine.connect()

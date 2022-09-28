@@ -1,3 +1,4 @@
+# pylint: skip-file
 """Fixes migrations conflict.
 Generated with "alembic merge heads"
 

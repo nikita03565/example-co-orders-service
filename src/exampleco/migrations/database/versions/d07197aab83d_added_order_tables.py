@@ -1,3 +1,4 @@
+# pylint: skip-file
 """Added order tables
 
 Revision ID: d07197aab83d

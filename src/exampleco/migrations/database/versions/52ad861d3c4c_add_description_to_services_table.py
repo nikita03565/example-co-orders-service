@@ -1,3 +1,4 @@
+# pylint: skip-file
 """Add description to services table
 
 Revision ID: 52ad861d3c4c

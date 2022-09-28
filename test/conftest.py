@@ -18,9 +18,7 @@ db_config = {
     "DB_HOST": DB_HOST,
     "DB_NAME": TEST_DB_NAME,
 }
-db_url = "mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(
-    **db_config
-)
+db_url = "mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(**db_config)
 
 
 @pytest.fixture(scope="session")
@@ -41,6 +39,4 @@ def setup_database(connection):
 
 @pytest.fixture
 def db_session(setup_database, connection):
-    return scoped_session(
-        sessionmaker(autocommit=False, autoflush=False, bind=connection)
-    )
+    return scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=connection))

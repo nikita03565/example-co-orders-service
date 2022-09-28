@@ -1,3 +1,4 @@
+# pylint: skip-file
 """Add modified_on to services table
 
 Revision ID: d3bdae443a1a

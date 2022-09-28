@@ -1,3 +1,6 @@
+"""
+A place for custom decorators
+"""
 import json
 import logging
 
@@ -9,12 +12,14 @@ logger.setLevel(logging.DEBUG)
 
 
 def handle_exception(func):
+    """Catches all unexpected exceptions and returns 500 response."""
+
     @wraps(func)
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception as e:
-            logger.error("Exception occurred: %s", e)
-            return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        except Exception as exc:  # pylint: disable=broad-except
+            logger.error("Exception occurred: %s", exc)
+            return {"statusCode": 500, "body": json.dumps({"error": str(exc)})}
 
     return inner

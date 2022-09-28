@@ -1,3 +1,6 @@
+"""
+A place for Services related models
+"""
 from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemySchema
 from sqlalchemy import Column, Float, Integer, String, text, TEXT, TIMESTAMP
@@ -6,15 +9,15 @@ from . import Base
 
 
 class Service(Base):
+    """A service model"""
+
     __tablename__ = "services"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
     description = Column(TEXT, nullable=True)
     price = Column(Float, nullable=False)
-    created_on = Column(
-        TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
+    created_on = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     modified_on = Column(
         TIMESTAMP,
         nullable=False,
@@ -23,9 +26,7 @@ class Service(Base):
     )
 
     def __repr__(self) -> str:
-        return "<Service(name='{}', price='{}', created_on='{}')>".format(
-            self.name, self.price, self.created_on
-        )
+        return "<Service(name='{}', price='{}', created_on='{}')>".format(self.name, self.price, self.created_on)
 
 
 class ServiceSchema(SQLAlchemySchema):

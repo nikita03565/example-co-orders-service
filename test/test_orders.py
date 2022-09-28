@@ -69,21 +69,19 @@ def create_orders(db_session):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_orders(mock_get_db_config, create_orders):
+def test_get_orders(mock_get_db_config, create_orders):  # pylint: disable=unused-argument
     from exampleco.api.orders import get_all_orders
 
     response = get_all_orders({}, None)
     body = json.loads(response["body"])
     assert len(body) == len(test_orders_data_list)
-    for actual, expected in zip(
-        sorted(body, key=lambda x: x["id"]), test_orders_data_list
-    ):
+    for actual, expected in zip(sorted(body, key=lambda x: x["id"]), test_orders_data_list):
         assert actual["name"] == expected["name"]
         assert "order_items" not in actual
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_order_does_not_exist(mock_get_db_config, create_orders):
+def test_get_order_does_not_exist(mock_get_db_config, create_orders):  # pylint: disable=unused-argument
     from exampleco.api.orders import get_order
 
     response = get_order({"pathParameters": {"pk": "AAABBBCCC"}}, None)
@@ -92,7 +90,7 @@ def test_get_order_does_not_exist(mock_get_db_config, create_orders):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_get_order(mock_get_db_config, create_orders, db_session):
+def test_get_order(mock_get_db_config, create_orders, db_session):  # pylint: disable=unused-argument
     from exampleco.api.orders import get_order
 
     order = db_session.query(Order).first()
@@ -109,15 +107,13 @@ def test_get_order(mock_get_db_config, create_orders, db_session):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_update_order(mock_get_db_config, create_orders, db_session):
+def test_update_order(mock_get_db_config, create_orders, db_session):  # pylint: disable=unused-argument
     from exampleco.api.orders import update_order
 
     order = db_session.query(Order).first()
     service = db_session.query(Service).order_by(Service.id.desc()).first()
     payload = {"name": "TEST ORDER 1 NEW NAME!", "service_id": service.id}
-    response = update_order(
-        {"pathParameters": {"pk": order.id}, "body": json.dumps(payload)}, None
-    )
+    response = update_order({"pathParameters": {"pk": order.id}, "body": json.dumps(payload)}, None)
     body = json.loads(response["body"])
     assert body["name"] == payload["name"]
     assert body["service_id"] == payload["service_id"]
@@ -127,7 +123,7 @@ def test_update_order(mock_get_db_config, create_orders, db_session):
 
 
 @patch("exampleco.models.database.get_db_config", return_value=db_config)
-def test_delete_order(mock_get_db_config, create_orders, db_session):
+def test_delete_order(mock_get_db_config, create_orders, db_session):  # pylint: disable=unused-argument
     from exampleco.api.orders import delete_order, get_order
 
     order = db_session.query(Order).first()

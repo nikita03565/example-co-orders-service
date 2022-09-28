@@ -31,9 +31,7 @@ class Order(Base):
         nullable=False,
     )
 
-    created_on = Column(
-        TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
+    created_on = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     modified_on = Column(
         TIMESTAMP,
         nullable=False,
@@ -46,14 +44,12 @@ class Order(Base):
         return self.status == OrderStatuses.ACTIVE
 
     @is_active.expression
-    def is_active(cls):
+    def is_active(cls):  # pylint: disable=no-self-argument
         return cls.status == OrderStatuses.ACTIVE
 
     def __repr__(self) -> str:
-        return (
-            "<Order(name='{}', status='{}', service_id='{}', created_on='{}')>".format(
-                self.name, self.status, self.service_id, self.created_on
-            )
+        return "<Order(name='{}', status='{}', service_id='{}', created_on='{}')>".format(
+            self.name, self.status, self.service_id, self.created_on
         )
 
 
@@ -68,9 +64,7 @@ class OrderItem(Base):
 
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
     order = relationship("Order", back_populates="order_items")
-    created_on = Column(
-        TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP")
-    )
+    created_on = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     modified_on = Column(
         TIMESTAMP,
         nullable=False,
